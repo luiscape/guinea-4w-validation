@@ -5,7 +5,7 @@ FILE_PATH='tool/data/guinea-4w-data.csv'
 CKAN_API_KEY='XXX'
 
 # Downloading and validating file
-~/R/bin/Rscript ~/tool/code/validation.R $FILE_PATH
+~/R/bin/Rscript ~/tool/code/validation.R $FILE_PATH > http/validation_log.txt
 
 # Creating / updating datastore
 source venv/bin/activate
