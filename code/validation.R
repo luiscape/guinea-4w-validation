@@ -10,10 +10,10 @@ library(RCurl)
 ###################
 args <- commandArgs(T)
 PATH = args[1]
-url = 'https://docs.google.com/spreadsheets/d/1_TFjKh_rcZmYFjgEDhDXoya16piFZHMpmZgLzrqlS5Y/export?format=csv&gid=2125848767&single=true'
+gdocs_url = 'https://docs.google.com/spreadsheets/d/1_TFjKh_rcZmYFjgEDhDXoya16piFZHMpmZgLzrqlS5Y/export?format=csv&gid=2125848767&single=true'
 
 # ScraperWiki helper script.
-onSw <- function(p = NULL, l = 'tool/', d = TRUE) {
+onSw <- function(p = NULL, l = 'tool/', d = FALSE) {
 	if (d) return(paste0(l, p))
 	else return(p)
 }
@@ -21,11 +21,6 @@ onSw <- function(p = NULL, l = 'tool/', d = TRUE) {
 # Helper functions
 source(onSw('code/write_tables.R'))
 source(onSw('code/sw_status.R'))
-
-# Function to download the file into a specific location.
-downloadFile <- function(u = NULL, p = NULL) {
-	download.file(u, p)
-}
 
 # Function to validate the spreadsheet.
 validateData <- function(p = NULL) {
@@ -94,7 +89,7 @@ validateData <- function(p = NULL) {
 
 # ScraperWiki wraper function
 runScraper <- function(p) {
-	downloadFile(url, p)
+	download.file(url=gdocs_url, destfile=p, method='wget')
 	data <- validateData(p)
 	if (is.data.frame(data)) write.csv(data, p, row.names = F)
 	else stop("Could not write CSV: isn't data.frame.")
