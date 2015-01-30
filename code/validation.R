@@ -24,7 +24,7 @@ source(onSw('code/sw_status.R'))
 
 # Function to download the file into a specific location.
 downloadFile <- function(u = NULL, p = NULL) {
-	download.file(u, p, method = 'wget')
+	download.file(u, p)
 }
 
 # Function to validate the spreadsheet.
