@@ -1,10 +1,7 @@
 # Simple script that manages the creation of
 # datastores in CKAN / HDX.
 
-# path to download
-PATH = 'tool/data/temp_data.csv'
-
-# dependencies
+# Dependencies
 import os
 import csv
 import json
@@ -18,6 +15,7 @@ from update_timestamp import updateTimestamp
 
 # Collecting configuration variables
 apikey = sys.argv[1]
+PATH = sys.argv[2]
 
 # configuring the remote CKAN instance
 ckan = ckanapi.RemoteCKAN('http://data.hdx.rwlabs.org', apikey=apikey)
@@ -158,7 +156,7 @@ def runEverything(p):
         resource = resources[i]  # getting the right resource
         resource_id = resource['resource_id']  # getting the resource_id
         print "Reading resource id: " + resource_id
-        downloadResource(p, resource_id, apikey)
+        # downloadResource(p, resource_id, apikey)
         updateDatastore(p, resource_id, resource, apikey)
     print '-------------------------------------'
     print 'Done.'
@@ -175,4 +173,4 @@ try:
 except Exception as e:
     print e
     scraperwiki.status('error', 'Creating datastore failed')
-    os.system("mail -s 'Ebola Case data: creating datastore failed.' luiscape@gmail.com")
+    os.system("mail -s 'Guinea 3W: creating datastore failed.' luiscape@gmail.com")

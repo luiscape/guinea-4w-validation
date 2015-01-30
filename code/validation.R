@@ -8,8 +8,8 @@ library(RCurl)
 ###################
 ## Configuration ##
 ###################
-
-PATH = 'tool/data/guinea_4w_data.csv'
+args <- commandArgs(T)
+PATH = args[1]
 url = 'https://docs.google.com/spreadsheets/d/1_TFjKh_rcZmYFjgEDhDXoya16piFZHMpmZgLzrqlS5Y/export?format=csv&gid=2125848767&single=true'
 
 # ScraperWiki helper script.
@@ -17,6 +17,10 @@ onSw <- function(d = T, p = NULL, l = 'tool/') {
 	if (d) return(paste0(l, p))
 	else return(p)
 }
+
+# Helper functions
+source(onSw('code/write_tables.R'))
+source(onSw('code/sw_status.R'))
 
 # Function to download the file into a specific location.
 downloadFile <- function(u = NULL, p = NULL) {
@@ -80,6 +84,8 @@ validateData <- function(p = NULL) {
 	else cat('SUCCESS\n')
 
 	cat('-------------------------------------\n')
+
+	return(data)
 }
 
 ###################
@@ -89,21 +95,22 @@ validateData <- function(p = NULL) {
 # ScraperWiki wraper function
 runScraper <- function(p) {
 	downloadFile(url, p)
-	validateData(p)
+	data <- validateData(p)
+	if (is.data.frame(data)) write.csv(data, p, row.names = F)
+	else stop("Could not write CSV: isn't data.frame.")
 }
 
-runScraper(PATH)
 
 # ScraperWiki-specific error handler
 # Changing the status of SW.
-# tryCatch(runScraper(),
-#          error = function(e) {
-#            cat('Error detected ... sending notification.')
-#            system('mail -s "Guinea 3W: Validation script failed." luiscape@gmail.com')
-#            changeSwStatus(type = "error", message = "Validation failed.")
-#            { stop("!!") }
-#          }
-# )
+tryCatch(runScraper(PATH),
+         error = function(e) {
+           cat('Error detected ... sending notification.')
+           system('mail -s "Guinea 3W: Validation script failed." luiscape@gmail.com')
+           changeSwStatus(type = "error", message = "Validation failed.")
+           { stop("!!") }
+         }
+)
 
-# # If success:
-# changeSwStatus(type = 'ok')
+# If success:
+changeSwStatus(type = 'ok')
