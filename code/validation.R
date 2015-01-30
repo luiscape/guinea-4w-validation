@@ -41,7 +41,7 @@ validateData <- function(p = NULL) {
 	sector_names = c("Communications","Coordination","Finance","Gestion des corps","Gestion des donnés","Logistiques","Prise en charge","Recherche","Sécurité","Soutien nutritionnel et social","Surveillance & suivi","Transport & diagnostiques")
 
 	# Test for number of original rows.
-	cat('Testing original number of rows | ')
+	cat('Testing original number of columns | ')
 	if (ncol(data) != n_cols) cat('SUCCESS\n')
 	else cat('FAIL\n')
 
