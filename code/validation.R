@@ -13,7 +13,7 @@ PATH = args[1]
 gdocs_url = 'https://docs.google.com/spreadsheets/d/1_TFjKh_rcZmYFjgEDhDXoya16piFZHMpmZgLzrqlS5Y/export?format=csv&gid=2125848767&single=true'
 
 # ScraperWiki helper script.
-onSw <- function(p = NULL, l = 'tool/', d = FALSE) {
+onSw <- function(p = NULL, l = 'tool/', d = TRUE) {
 	if (d) return(paste0(l, p))
 	else return(p)
 }
