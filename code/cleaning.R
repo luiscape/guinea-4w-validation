@@ -8,7 +8,7 @@ library(stringr)
 onSw <- function(file_loc = NULL, d = F, root = 'tool/') {
   # sanity check
   if (is.null(file_loc)) stop("SW Helper: Please provide a file_loc.")
-  
+
   # function
   file_path = paste0(root, file_loc)
   if (d) return(file_path)

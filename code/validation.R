@@ -4,16 +4,17 @@
 
 # Dependencies
 library(RCurl)
+library(RJSONIO)
 
 ###################
 ## Configuration ##
 ###################
 args <- commandArgs(T)
 PATH = args[1]
-gdocs_url = 'https://docs.google.com/spreadsheets/d/1_TFjKh_rcZmYFjgEDhDXoya16piFZHMpmZgLzrqlS5Y/export?format=csv&gid=2125848767&single=true'
+gdocs_url = 'http://docs.google.com/spreadsheets/d/1_TFjKh_rcZmYFjgEDhDXoya16piFZHMpmZgLzrqlS5Y/export?format=csv&gid=2125848767&single=true'
 
 # ScraperWiki helper script.
-onSw <- function(p = NULL, l = 'tool/', d = TRUE) {
+onSw <- function(p = NULL, l = 'tool/', d = FALSE) {
 	if (d) return(paste0(l, p))
 	else return(p)
 }
@@ -23,9 +24,9 @@ source(onSw('code/write_tables.R'))
 source(onSw('code/sw_status.R'))
 
 # Function to validate the spreadsheet.
-validateData <- function(p = NULL) {
+validateData <- function(path = NULL) {
 	# Loading data
-	data <- read.csv(p)
+	data <- read.csv(path)
 	data <- data[-1,]  # Removing HXL tags row.
 
 	cat('-------------------------------------\n')
@@ -35,50 +36,119 @@ validateData <- function(p = NULL) {
 	#################
 	# Configuration #
 	#################
-	n_cols = 8  # Number of original rows
+	n_cols = 8  # Number of original row.
 	column_names = c("Region","P_Code","Sector","Activity_Type","Organisation","Activity_Description","Start_Date","End_Date","Comments")
 	place_names = c("Beyla","Boffa","Boké","Conakry","Coyah","Dalaba","Dinguiraye","Dubréka","Faranah","Forecariah","Fria","Gaoual","Guéckédou","Kankan","Kérouané","Kindia","Kissidougou","Koubia","Koundara","Kouroussa","Labé","Lelouma","Lola","Macenta","Mali","Mamou","Mandiana","N'zérékoré","National","Pita","Siguiri","Télimélé","Tougue","Yomou")
 	sector_names = c("Communications","Coordination","Finance","Gestion des corps","Gestion des donnés","Logistiques","Prise en charge","Recherche","Sécurité","Soutien nutritionnel et social","Surveillance & suivi","Transport & diagnostiques")
 
+	#########
+	# Tests #
+	#########
+  
 	# Test for number of original rows.
 	cat('Testing original number of columns | ')
-	if (ncol(data) != n_cols) cat('SUCCESS\n')
-	else cat('FAIL\n')
-
+	if (ncol(data) != n_cols) {
+    test_it <- data.frame(name = paste("Original number of columns is", n_cols) , success = TRUE)
+    cat('SUCCESS\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("Original number of columns is", n_cols) , success = FALSE)
+    cat('FAIL\n')
+	}
+  
+  # creating a tests data.frame
+  test_df <- test_it
+  
 	# Testing for the correct columns names.
 	cat('Testing for original column names | ')
-	if (any(names(data) %in% column_names) == FALSE) cat('FAIL\n')
-	else cat('SUCCESS\n')
+	if (any(names(data) %in% column_names) == FALSE) {
+	  test_it <- data.frame(name = paste("Original column names") , success = FALSE)
+    cat('FAIL\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("Original column names") , success = TRUE)
+    cat('SUCCESS\n')
+	}
+  
+  # adding test.
+	test_df <- rbind(test_df, test_it)
 
 	# Test for the correct place names.
 	cat('Testing place names | ')
-	if (any((data$Region %in% place_names) == FALSE)) cat('FAIL\n')
-	else cat('SUCCESS\n')
+	if (any((data$Region %in% place_names) == FALSE)) {
+	  test_it <- data.frame(name = paste("Original column names") , success = FALSE)
+    cat('FAIL\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("Original column names") , success = TRUE)
+    cat('SUCCESS\n')
+	}
 
 	# Test for correct sector names.
 	cat('Testing sector names | ')
-	if (any((data$Sector %in% sector_names) == FALSE)) cat('FAIL\n')
-	else cat('SUCCESS\n')
+	if (any((data$Sector %in% sector_names) == FALSE)) {
+	  test_it <- data.frame(name = paste("Sector names are correct") , success = FALSE)
+    cat('FAIL\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("Sector names are correct") , success = TRUE)
+    cat('SUCCESS\n')
+	}
+  
+  # Adding test results.
+  test_df <- rbind(test_df, test_it)
 
 	# Test for organization object type.
 	cat('Testing organization object type | ')
 	test_vector <- as.numeric(data$Organisation)
-	if (any(!is.na(test_vector)) == TRUE) cat('FAIL\n')
-	else cat('SUCCESS\n')
+	if (any(!is.na(test_vector)) == TRUE) {
+	  test_it <- data.frame(name = paste("Sector names are correct") , success = FALSE)
+    cat('FAIL\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("Sector names are correct") , success = TRUE)
+    cat('SUCCESS\n')
+	}
+  
+	# Adding test results.
+	test_df <- rbind(test_df, test_it)
 
 	# Test for the object type in start date.
 	cat('Testing start date object type | ')
 	test_vector <- nchar(as.character(data$Start_Date))
-	if(any(na.omit(test_vector) != 10)) cat('FAIL\n')
-	else cat('SUCCESS\n')
+	if(any(na.omit(test_vector) != 10)) {
+	  test_it <- data.frame(name = paste("Start date object type (date)") , success = FALSE)
+    cat('FAIL\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("Start date object type (date)") , success = TRUE)
+    cat('SUCCESS\n') 
+  }
+  
+	# Adding test results.
+	test_df <- rbind(test_df, test_it)
 
 	# Test for the object type in start date.
 	cat('Testing end date object type | ')
 	test_vector <- nchar(as.character(data$End_Date))
-	if(any(na.omit(test_vector) != 10)) cat('FAIL\n')
-	else cat('SUCCESS\n')
+	if(any(na.omit(test_vector) != 10)) {
+	  test_it <- data.frame(name = paste("End date object type (date)") , success = FALSE)
+    cat('FAIL\n')
+	}
+	else {
+	  test_it <- data.frame(name = paste("End date object type (date)") , success = TRUE)
+    cat('SUCCESS\n')
+	}
+  
+	# Adding test results.
+	test_df <- rbind(test_df, test_it)
 
 	cat('-------------------------------------\n')
+  
+  # writing JSON
+	sink(onSw("http/test_results.json"))
+	  cat(toJSON(test_df))
+	sink()
 
 	return(data)
 }
@@ -95,17 +165,18 @@ runScraper <- function(p) {
 	else stop("Could not write CSV: isn't data.frame.")
 }
 
+runScraper(PATH)
 
 # ScraperWiki-specific error handler
 # Changing the status of SW.
-tryCatch(runScraper(PATH),
-         error = function(e) {
-           cat('Error detected ... sending notification.')
-           system('mail -s "Guinea 3W: Validation script failed." luiscape@gmail.com')
-           changeSwStatus(type = "error", message = "Validation failed.")
-           { stop("!!") }
-         }
-)
+# tryCatch(runScraper(PATH),
+#          error = function(e) {
+#            cat('Error detected ... sending notification.')
+#            system('mail -s "Guinea 3W: Validation script failed." luiscape@gmail.com')
+#            changeSwStatus(type = "error", message = "Validation failed.")
+#            { stop("!!") }
+#          }
+# )
 
-# If success:
-changeSwStatus(type = 'ok')
+# # If success:
+# changeSwStatus(type = 'ok')
