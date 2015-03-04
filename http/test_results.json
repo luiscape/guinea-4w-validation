@@ -1,4 +1,4 @@
 {
- "name": [ "Original number of columns is 8", "Original column names", "Sector names are correct", "Sector names are correct", "Start date object type (date)", "End date object type (date)" ],
-"success": [ true, true, false, false, false, false ] 
+ "name": [ "Original number of columns is 9", "Original column names", "Sector names are correct", "Organization object type is correct", "Start date object type (date)", "End date object type (date)" ],
+"success": [ true, true, true, true, true, true ] 
 }

@@ -36,10 +36,11 @@ validateData <- function(path = NULL) {
 	#################
 	# Configuration #
 	#################
-	n_cols = 8  # Number of original row.
+	n_cols = 9  # Number of original columns / variables.
+  sector_names = c("Coordination", "Surveillance & suivi", "Prise en charge", "Gestion des données", "Recherche", "Communication", "Gestion des corps", "Soutien nutritionnel", "Logistique", "Soutien social", "Sécurité")
 	column_names = c("Region","P_Code","Sector","Activity_Type","Organisation","Activity_Description","Start_Date","End_Date","Comments")
-	place_names = c("Beyla","Boffa","Boké","Conakry","Coyah","Dalaba","Dinguiraye","Dubréka","Faranah","Forecariah","Fria","Gaoual","Guéckédou","Kankan","Kérouané","Kindia","Kissidougou","Koubia","Koundara","Kouroussa","Labé","Lelouma","Lola","Macenta","Mali","Mamou","Mandiana","N'zérékoré","National","Pita","Siguiri","Télimélé","Tougue","Yomou")
-	sector_names = c("Communications","Coordination","Finance","Gestion des corps","Gestion des donnés","Logistiques","Prise en charge","Recherche","Sécurité","Soutien nutritionnel et social","Surveillance & suivi","Transport & diagnostiques")
+	place_names = c("Conakry","Siguiri","Coyah","Dalaba", "Forecariah", "Labé", "Lelouma", "Pita", "Nzérékoré", "Beyla", "Boffa", "Boké", "Dabola", "Dinguiraye", "Dubreka", "Faranah", "Fria", "Gaoual", "Guéckédou", "Kankan", "Kérouané", "Kindia", "Kissidougou", "Koubia", "Koundara", "Kouroussa", "Lola", "Macenta", "Mali", "Mamou", "Mandiana", "Télimélé", "Tougue", "Yomou")
+	# sector_names = c("Communication","Coordination","Finance","Gestion des corps","Gestion des donnés","Logistiques","Prise en charge","Recherche","Sécurité","Soutien nutritionnel et social","Surveillance & suivi","Transport & diagnostiques")
 
 	#########
 	# Tests #
@@ -47,7 +48,7 @@ validateData <- function(path = NULL) {
   
 	# Test for number of original rows.
 	cat('Testing original number of columns | ')
-	if (ncol(data) != n_cols) {
+	if (ncol(data) == n_cols) {
     test_it <- data.frame(name = paste("Original number of columns is", n_cols) , success = TRUE)
     cat('SUCCESS\n')
 	}
@@ -100,13 +101,13 @@ validateData <- function(path = NULL) {
 
 	# Test for organization object type.
 	cat('Testing organization object type | ')
-	test_vector <- as.numeric(data$Organisation)
+	test_vector <- as.numeric(as.character(data$Organisation))
 	if (any(!is.na(test_vector)) == TRUE) {
-	  test_it <- data.frame(name = paste("Sector names are correct") , success = FALSE)
+	  test_it <- data.frame(name = paste("Organization object type is correct") , success = FALSE)
     cat('FAIL\n')
 	}
 	else {
-	  test_it <- data.frame(name = paste("Sector names are correct") , success = TRUE)
+	  test_it <- data.frame(name = paste("Organization object type is correct") , success = TRUE)
     cat('SUCCESS\n')
 	}
   
@@ -116,7 +117,7 @@ validateData <- function(path = NULL) {
 	# Test for the object type in start date.
 	cat('Testing start date object type | ')
 	test_vector <- nchar(as.character(data$Start_Date))
-	if(any(na.omit(test_vector) != 10)) {
+	if(any(na.omit(test_vector) %in% c(0, 8, 9, 10) == FALSE)) {
 	  test_it <- data.frame(name = paste("Start date object type (date)") , success = FALSE)
     cat('FAIL\n')
 	}
@@ -131,7 +132,7 @@ validateData <- function(path = NULL) {
 	# Test for the object type in start date.
 	cat('Testing end date object type | ')
 	test_vector <- nchar(as.character(data$End_Date))
-	if(any(na.omit(test_vector) != 10)) {
+	if(any(na.omit(test_vector) %in% c(0, 8, 9, 10) == FALSE)) {
 	  test_it <- data.frame(name = paste("End date object type (date)") , success = FALSE)
     cat('FAIL\n')
 	}
@@ -160,23 +161,21 @@ validateData <- function(path = NULL) {
 # ScraperWiki wraper function
 runScraper <- function(p) {
 	download.file(url=gdocs_url, destfile=p, method='wget')
-	data <- validateData(p)
+	data <- suppressWarnings(validateData(p))
 	if (is.data.frame(data)) write.csv(data, p, row.names = F)
 	else stop("Could not write CSV: isn't data.frame.")
 }
 
-runScraper(PATH)
-
 # ScraperWiki-specific error handler
 # Changing the status of SW.
-# tryCatch(runScraper(PATH),
-#          error = function(e) {
-#            cat('Error detected ... sending notification.')
-#            system('mail -s "Guinea 3W: Validation script failed." luiscape@gmail.com')
-#            changeSwStatus(type = "error", message = "Validation failed.")
-#            { stop("!!") }
-#          }
-# )
+tryCatch(runScraper(PATH),
+         error = function(e) {
+           cat('Error detected ... sending notification.')
+           system('mail -s "Guinea 3W: Validation script failed." luiscape@gmail.com')
+           changeSwStatus(type = "error", message = "Validation failed.")
+           { stop("!!") }
+         }
+)
 
-# # If success:
-# changeSwStatus(type = 'ok')
+# If success:
+changeSwStatus(type = 'ok')
